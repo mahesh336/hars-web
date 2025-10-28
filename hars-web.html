@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>HARS WEB — Local</title>
+<style>
+  /* ========== Basic reset ========== */
+  :root{
+    --bg:#050505;
+    --panel:#101010;
+    --muted:#A0A0A0;
+    --accent1: #6b38ff;
+    --accent2: #28e0d6;
+    --glass: rgba(255,255,255,0.04);
+    --danger: #ff5252;
+    --success: #32d74b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+  body{
+    background: linear-gradient(120deg,#020202 0%, #0b0b0b 40%);
+    color:#eee;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:24px;
+  }
+
+  /* ========== Container views ========== */
+  .app{
+    width:100%;
+    max-width:1100px;
+    min-height:640px;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    background: radial-gradient(circle at top left, rgba(255,255,255,0.02), transparent 30%), linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* -------- Welcome screen -------- */
+  .welcome{
+    padding:56px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:48px; flex:1;
+    background: linear-gradient(90deg, #2b0e6f 0%, #0a8891 100%);
+    color:#000;
+  }
+  .title{
+    font-size:96px;
+    letter-spacing:6px;
+    font-weight:800;
+    margin:0;
+  }
+  .sign-btn{
+    width:70%;
+    max-width:720px;
+    padding:22px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:2px;
+    border:none;
+    cursor:pointer;
+    background: linear-gradient(90deg,var(--accent1),var(--accent2));
+    color:#071019;
+    box-shadow: 0 8px 24px rgba(40,224,214,0.14);
+  }
+
+  /* -------- Passkey screen (dark) -------- */
+  .passview{
+    display:none;
+    background: var(--bg);
+    color:#e8e8e8;
+    padding:48px;
+    align-items:center;
+    justify-content:center;
+    gap:28px;
+    flex-direction:column;
+    min-height:640px;
+  }
+  .pass-box{
+    width:70%;
+    max-width:780px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    align-items:center;
+  }
+  .pass-input{
+    width:100%;
+    padding:20px 28px;
+    border-radius:44px;
+    background:var(--glass);
+    border: 1px solid rgba(255,255,255,0.03);
+    color:#dcdcdc;
+    font-size:20px;
+    letter-spacing:6px;
+    text-transform:uppercase;
+    text-align:center;
+  }
+  .small{
+    font-size:14px;color:var(--muted);margin-top:6px;
+  }
+  .pass-action{
+    width:40%;
+    padding:14px;
+    border-radius:22px;
+    border:none;
+    cursor:pointer;
+    font-weight:700;
+    letter-spacing:2px;
+    background:#bdbdbd;
+    color:#061010;
+  }
+  .pass-error{color:var(--danger);font-weight:600;}
+
+  /* -------- Dashboard -------- */
+  .dash{
+    display:none;
+    flex-direction:row;
+    flex:1;
+    min-height:640px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
+  }
+  
+  /* sidebar */
+  .sidebar {
+  background: #0a0a0a; /* pure dark black */
+}
+
+.tab-btn#devBtn {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  margin-top: 10px;
+  padding-top: 14px;
+  color: #9c9c9c;
+}
+
+.tab-btn#devBtn:hover {
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  color: #061010;
+}
+
+  .sidebar{
+    width:220px;
+    padding:26px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
+    border-right:1px solid rgba(255,255,255,0.03);
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    align-items:flex-start;
+  }
+  .logo{
+    font-size:28px;font-weight:800;letter-spacing:6px;color:#fff;margin-bottom:10px;
+  }
+  .tab-btn{
+    width:100%;
+    padding:12px 14px;
+    border-radius:12px;
+    text-align:left;
+    font-weight:700;
+    background:transparent;
+    color:#cfcfcf;
+    border:none;
+    cursor:pointer;
+  }
+  .tab-btn.active{
+    background: linear-gradient(90deg,var(--accent1),var(--accent2));
+    color:#061010;
+  }
+  .small-muted{font-size:12px;color:var(--muted);margin-top:8px}
+  /* main area */
+  .main{
+    flex:1;
+    padding:28px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .toolbar{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .search{
+    flex:1;
+    margin-left:8px;
+  }
+  .control{
+    display:flex;gap:10px;align-items:center;
+  }
+  .btn{
+    padding:10px 14px;border-radius:10px;border:none;cursor:pointer;background:var(--glass);color:#e8e8e8;font-weight:700;
+  }
+
+  /* content grid / lists */
+  .content{
+    flex:1;
+    display:block;
+    overflow:auto;
+    padding-top:6px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
+    gap:14px;
+  }
+
+  .card{
+    background: rgba(255,255,255,0.03);
+    border-radius:12px;
+    padding:10px;
+    display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;
+  }
+
+  .thumb{
+    width:100%;
+    aspect-ratio: 16/10;
+    background:#0a0a0a;border-radius:8px;display:flex;align-items:center;justify-content:center; overflow:hidden;
+  }
+  .thumb img, .thumb video{width:100%;height:100%;object-fit:cover;display:block}
+
+  .meta{width:100%;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+
+  /* forms */
+  .form-row{display:flex;gap:10px;align-items:center}
+  .input, textarea{
+    padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:#fff;
+  }
+  textarea{min-height:90px;resize:vertical}
+
+  /* small controls */
+  .icon-btn{padding:8px;border-radius:8px;border:none;background:transparent;color:var(--muted);cursor:pointer}
+  .danger{color:var(--danger)}
+  .ok{color:var(--success)}
+
+  /* responsive */
+  @media (max-width:880px){
+    .app{min-height:100vh;border-radius:0}
+    .sidebar{display:none}
+    .pass-box,.welcome .sign-btn{width:92%}
+    .title{font-size:56px}
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ======== Welcome view ======== -->
+  <div class="welcome view" id="welcomeView">
+    <h1 class="title">HARS WEB</h1>
+    <button class="sign-btn" id="goToPass">SIGN IN</button>
+  </div>
+
+  <!-- ======== Passkey view ======== -->
+  <div class="passview view" id="passView" aria-hidden="true">
+    <div class="pass-box">
+      <input id="pass1" class="pass-input" placeholder="PASSKEY" type="password" autocomplete="new-password" />
+      <input id="pass2" class="pass-input" placeholder="RE-ENTER PASSKEY (only for create)" type="password" autocomplete="new-password" />
+      <div style="display:flex;gap:12px;align-items:center">
+        <button id="passSubmit" class="pass-action">UNLOCK</button>
+        <button id="resetAll" class="pass-action" style="background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.04)">RESET</button>
+      </div>
+      <div class="small" id="passHint">First time: enter passkey twice to create. Later: enter your passkey in the top input.</div>
+      <div id="passError" class="pass-error" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ======== Dashboard view ======== -->
+  <div class="dash view" id="dashView" aria-hidden="true">
+    <!-- sidebar -->
+    <aside class="sidebar">
+      <div class="logo">HARS WEB</div>
+      <button class="tab-btn active" data-tab="photos">Photos</button>
+      <button class="tab-btn" data-tab="videos">Videos</button>
+      <button class="tab-btn" data-tab="contacts">Contacts</button>
+      <button class="tab-btn" data-tab="notes">Notes</button>
+      <button class="tab-btn" id="devBtn" data-tab="developer">Developer</button>
+      <div style="flex:1"></div>
+      <div class="small-muted">Local-only • Offline</div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn" id="logoutBtn">Logout</button>
+        <button class="btn" id="clearBtn" title="Clear all local data">Clear</button>
+      </div>
+    </aside>
+
+    <!-- main -->
+    <main class="main">
+      <div class="toolbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div id="tabTitle" style="font-weight:800; font-size:18px">Photos</div>
+        </div>
+        <div class="control">
+          <input id="search" class="input" placeholder="Search (name/notes)"/>
+          <div style="width:8px"></div>
+          <button class="btn" id="addBtn">ADD</button>
+        </div>
+      </div>
+
+      <div class="content" id="contentArea">
+        <!-- dynamic content -->
+      </div>
+    </main>
+  </div>
+
+</div>
+
+<script>
+/* ========== IndexedDB helper ========== */
+const DB_NAME = 'HARS_WEB_DB';
+const DB_VERSION = 1;
+let db = null;
+
+function openDB(){
+  return new Promise((res,rej)=>{
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e)=>{
+      const idb = e.target.result;
+      if(!idb.objectStoreNames.contains('photos')) idb.createObjectStore('photos', { keyPath:'id', autoIncrement:true });
+      if(!idb.objectStoreNames.contains('videos')) idb.createObjectStore('videos', { keyPath:'id', autoIncrement:true });
+      if(!idb.objectStoreNames.contains('contacts')) idb.createObjectStore('contacts', { keyPath:'id', autoIncrement:true });
+      if(!idb.objectStoreNames.contains('notes')) idb.createObjectStore('notes', { keyPath:'id', autoIncrement:true });
+    };
+    req.onsuccess = (e)=>{ db = e.target.result; res(db); };
+    req.onerror = (e)=> rej(e.target.error);
+  });
+}
+
+function idbTransaction(storeName, mode='readonly'){
+  return db.transaction([storeName], mode).objectStore(storeName);
+}
+function idbAdd(storeName, value){
+  return new Promise((res,rej)=>{
+    const tx = db.transaction([storeName],'readwrite');
+    const store = tx.objectStore(storeName);
+    const req = store.add(value);
+    req.onsuccess = ()=>res(req.result);
+    req.onerror = (e)=>rej(e.target.error);
+  });
+}
+function idbPut(storeName, value){
+  return new Promise((res,rej)=>{
+    const tx = db.transaction([storeName],'readwrite');
+    const store = tx.objectStore(storeName);
+    const req = store.put(value);
+    req.onsuccess = ()=>res(req.result);
+    req.onerror = (e)=>rej(e.target.error);
+  });
+}
+function idbGetAll(storeName){
+  return new Promise((res,rej)=>{
+    const tx = db.transaction([storeName],'readonly');
+    const store = tx.objectStore(storeName);
+    const req = store.getAll();
+    req.onsuccess = ()=>res(req.result);
+    req.onerror = (e)=>rej(e.target.error);
+  });
+}
+function idbGet(storeName, key){
+  return new Promise((res,rej)=>{
+    const tx = db.transaction([storeName],'readonly');
+    const store = tx.objectStore(storeName);
+    const req = store.get(key);
+    req.onsuccess = ()=>res(req.result);
+    req.onerror = (e)=>rej(e.target.error);
+  });
+}
+function idbDelete(storeName, key){
+  return new Promise((res,rej)=>{
+    const tx = db.transaction([storeName],'readwrite');
+    const store = tx.objectStore(storeName);
+    const req = store.delete(key);
+    req.onsuccess = ()=>res();
+    req.onerror = (e)=>rej(e.target.error);
+  });
+}
+function clearAllStores(){
+  return new Promise((res,rej)=>{
+    const tx = db.transaction(['photos','videos','contacts','notes'],'readwrite');
+    tx.objectStore('photos').clear();
+    tx.objectStore('videos').clear();
+    tx.objectStore('contacts').clear();
+    tx.objectStore('notes').clear();
+    tx.oncomplete = ()=>res();
+    tx.onerror = (e)=>rej(e.target.error);
+  });
+}
+
+/* ========== Passkey (hashing using SubtleCrypto) ========== */
+async function sha256str(str){
+  const enc = new TextEncoder();
+  const data = enc.encode(str);
+  const h = await crypto.subtle.digest('SHA-256', data);
+  const arr = Array.from(new Uint8Array(h));
+  return arr.map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+const PASSKEY_STORAGE = 'HARS_PASS_HASH';
+
+/* ========== UI handling ========== */
+const welcomeView = document.getElementById('welcomeView');
+const passView = document.getElementById('passView');
+const dashView = document.getElementById('dashView');
+const goToPass = document.getElementById('goToPass');
+const passSubmit = document.getElementById('passSubmit');
+const pass1 = document.getElementById('pass1');
+const pass2 = document.getElementById('pass2');
+const passError = document.getElementById('passError');
+const passHint = document.getElementById('passHint');
+const logoutBtn = document.getElementById('logoutBtn');
+const clearBtn = document.getElementById('clearBtn');
+
+const tabBtns = Array.from(document.querySelectorAll('.tab-btn'));
+const tabTitle = document.getElementById('tabTitle');
+const addBtn = document.getElementById('addBtn');
+const contentArea = document.getElementById('contentArea');
+const searchInput = document.getElementById('search');
+
+let currentTab = 'photos';
+
+/* ========== Initialize ========== */
+(async function init(){
+  await openDB();
+  // attach events
+  goToPass.onclick = ()=> showView('pass');
+  passSubmit.onclick = handlePassSubmit;
+  resetBindings();
+  logoutBtn.onclick = handleLogout;
+  clearBtn.onclick = handleClearAll;
+  tabBtns.forEach(b=>b.onclick = ()=> switchTab(b.dataset.tab));
+  addBtn.onclick = ()=> openAddDialog(currentTab);
+  searchInput.oninput = debounce(renderCurrentTab, 220);
+  // initial
+  showView('welcome');
+})();
+
+/* ========== view control ========== */
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+  if(name==='welcome') { welcomeView.style.display='flex'; passView.style.display='none'; dashView.style.display='none'; }
+  if(name==='pass') { welcomeView.style.display='none'; passView.style.display='flex'; dashView.style.display='none'; pass1.value=''; pass2.value=''; passError.style.display='none'; pass1.focus(); checkPassExisting();}
+  if(name==='dash') { welcomeView.style.display='none'; passView.style.display='none'; dashView.style.display='flex'; renderCurrentTab(); }
+}
+
+function checkPassExisting(){
+  const has = !!localStorage.getItem(PASSKEY_STORAGE);
+  passHint.textContent = has ? 'Enter your passkey in the top input and press UNLOCK.' : 'First time: enter passkey twice to create. Later: enter your passkey in the top input.';
+}
+
+/* ========== passkey logic ========== */
+async function handlePassSubmit(){
+  passError.style.display='none';
+  const v1 = pass1.value.trim();
+  const v2 = pass2.value.trim();
+  const stored = localStorage.getItem(PASSKEY_STORAGE);
+  if(!v1){ showPassError('Enter passkey.'); return; }
+
+  if(!stored){
+    // create mode: require both and match
+    if(!v2){ showPassError('Re-enter the passkey to create.'); return; }
+    if(v1 !== v2){ showPassError('Passkeys do not match.'); return; }
+    const h = await sha256str(v1);
+    localStorage.setItem(PASSKEY_STORAGE, h);
+    pass1.value=''; pass2.value='';
+    showView('dash');
+  } else {
+    // login mode
+    const h = await sha256str(v1);
+    if(h === stored){
+      pass1.value=''; pass2.value='';
+      showView('dash');
+    } else {
+      showPassError('Incorrect passkey.');
+    }
+  }
+}
+
+function showPassError(msg){
+  passError.textContent = msg;
+  passError.style.display='block';
+}
+
+/* ========== logout / reset ========== */
+function handleLogout(){
+  // simply go to pass screen. keep data in DB.
+  showView('pass');
+}
+async function handleClearAll(){
+  if(!confirm('Clear ALL locally stored data (photos, videos, contacts, notes) ?')) return;
+  try{
+    await clearAllStores();
+    alert('Cleared all data.');
+    renderCurrentTab();
+  }catch(e){ alert('Error clearing: '+e); }
+}
+
+/* ========== tabs ========== */
+function switchTab(tab){
+  currentTab = tab;
+  tabBtns.forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  tabTitle.textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
+  renderCurrentTab();
+}
+
+/* ========== rendering logic per tab ========== */
+async function renderCurrentTab(){
+  contentArea.innerHTML = '';
+  const q = (searchInput.value||'').toLowerCase().trim();
+  if(currentTab==='photos'){
+    const items = await idbGetAll('photos');
+    const filtered = items.filter(i => !q || (i.name && i.name.toLowerCase().includes(q)) || (i.note && i.note.toLowerCase().includes(q)));
+    renderMediaGrid(filtered,'image');
+  } else if(currentTab==='videos'){
+    const items = await idbGetAll('videos');
+    const filtered = items.filter(i => !q || (i.name && i.name.toLowerCase().includes(q)) || (i.note && i.note.toLowerCase().includes(q)));
+    renderMediaGrid(filtered,'video');
+  } else if(currentTab==='contacts'){
+    const items = await idbGetAll('contacts');
+    const filtered = items.filter(i => !q || (i.name && i.name.toLowerCase().includes(q)) || (i.phone && i.phone.toLowerCase().includes(q)));
+    renderContacts(filtered);
+  } else if(currentTab==='notes'){
+    const items = await idbGetAll('notes');
+    const filtered = items.filter(i => !q || (i.title && i.title.toLowerCase().includes(q)) || (i.body && i.body.toLowerCase().includes(q)));
+    renderNotes(filtered);
+  } else if (currentTab === 'developer') {
+  renderDeveloperTab();
+}
+
+}
+
+
+/* ========== media grid (photos/videos) ========= */
+function renderMediaGrid(items, kind){
+  if(items.length===0){
+    contentArea.innerHTML = `<div style="color:var(--muted);padding:18px">No ${kind==='image' ? 'photos' : 'videos'} yet. Click ADD to upload.</div>`;
+    return;
+  }
+  const grid = document.createElement('div'); grid.className='grid';
+  items.sort((a,b)=>b.id - a.id);
+  items.forEach(item=>{
+    const card = document.createElement('div'); card.className='card';
+    const thumb = document.createElement('div'); thumb.className='thumb';
+    if(kind==='image'){
+      const img = document.createElement('img');
+      if(item.blob) img.src = URL.createObjectURL(item.blob);
+      thumb.appendChild(img);
+    } else {
+      const vid = document.createElement('video'); vid.controls=false; vid.muted=true;
+      if(item.blob) vid.src = URL.createObjectURL(item.blob);
+      thumb.appendChild(vid);
+    }
+    card.appendChild(thumb);
+    const meta = document.createElement('div'); meta.className='meta';
+    const left = document.createElement('div'); left.style.flex='1'; left.innerHTML = `<div style="font-weight:700;color:#fff">${escapeHtml(item.name||('Untitled'))}</div><div style="font-size:12px;color:var(--muted)">${escapeHtml(item.note||'')}</div>`;
+    const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px';
+    const btnView = document.createElement('button'); btnView.className='icon-btn'; btnView.title='Open'; btnView.innerText='Open';
+    btnView.onclick = ()=> openPreview(item, kind);
+    const btnReplace = document.createElement('button'); btnReplace.className='icon-btn'; btnReplace.title='Replace'; btnReplace.innerText='Replace';
+    btnReplace.onclick = ()=> replaceMedia(item, kind);
+    const btnDel = document.createElement('button'); btnDel.className='icon-btn danger'; btnDel.title='Delete'; btnDel.innerText='Delete';
+    btnDel.onclick = async ()=>{ if(confirm('Delete this item?')){ await idbDelete(kind==='image'?'photos':'videos', item.id); renderCurrentTab(); } };
+    right.appendChild(btnView); right.appendChild(btnReplace); right.appendChild(btnDel);
+    meta.appendChild(left); meta.appendChild(right);
+    card.appendChild(meta);
+    grid.appendChild(card);
+  });
+  contentArea.appendChild(grid);
+}
+
+function openPreview(item, kind){
+  // open in new window/tab as object URL so user can view/download
+  if(!item.blob){ alert('No data stored.'); return; }
+  const url = URL.createObjectURL(item.blob);
+  const w = window.open();
+  if(kind==='image'){
+    w.document.body.style.background='black';
+    const img = w.document.createElement('img'); img.src = url; img.style.maxWidth='100%'; img.style.display='block'; img.style.margin='20px auto'; w.document.body.appendChild(img);
+  } else {
+    w.document.body.style.background='black';
+    const vid = w.document.createElement('video'); vid.src = url; vid.controls=true; vid.style.maxWidth='100%'; vid.style.display='block'; vid.style.margin='20px auto'; w.document.body.appendChild(vid);
+  }
+}
+
+function replaceMedia(item, kind){
+  const input = document.createElement('input'); input.type='file';
+  input.accept = kind==='image' ? 'image/*' : 'video/*';
+  input.onchange = async (e)=>{
+    const f = e.target.files[0];
+    if(!f) return;
+    const blob = await f.slice(0, f.size, f.type);
+    item.name = f.name;
+    item.note = item.note || '';
+    item.blob = blob;
+    await idbPut(kind==='image'?'photos':'videos', item);
+    renderCurrentTab();
+  };
+  input.click();
+}
+
+/* ========== contacts UI ========= */
+function renderContacts(items){
+  const wrap = document.createElement('div');
+  wrap.style.display='flex';
+  wrap.style.flexDirection='column';
+  wrap.style.gap='12px';
+
+  const grid = document.createElement('div'); grid.className='grid';
+  items.sort((a,b)=>b.id - a.id);
+  items.forEach(c=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `<div style="font-weight:700;font-size:16px">${escapeHtml(c.name)}</div><div style="color:var(--muted)">${escapeHtml(c.phone)}</div><div style="font-size:12px;color:var(--muted)">${escapeHtml(c.note||'')}</div>`;
+    const ctrl = document.createElement('div'); ctrl.style.display='flex'; ctrl.style.gap='8px';
+    const edit = document.createElement('button'); edit.className='btn'; edit.innerText='Edit'; edit.onclick = ()=> openEditContact(c);
+    const del = document.createElement('button'); del.className='btn'; del.innerText='Delete'; del.onclick = async ()=>{ if(confirm('Delete contact?')){ await idbDelete('contacts', c.id); renderCurrentTab(); } };
+    ctrl.appendChild(edit); ctrl.appendChild(del);
+    card.appendChild(ctrl);
+    grid.appendChild(card);
+  });
+
+  wrap.appendChild(grid);
+  contentArea.appendChild(wrap);
+}
+
+function openEditContact(c){
+  const modal = promptContactForm(c);
+  modal.onSave = async (data)=>{  
+    data.id = c.id;
+    await idbPut('contacts', data);
+    renderCurrentTab();
+  };
+}
+
+/* ========== notes UI ========= */
+function renderNotes(items){
+  const wrap = document.createElement('div');
+  wrap.style.display='flex';
+  wrap.style.flexDirection='column';
+  wrap.style.gap='12px';
+
+  const grid = document.createElement('div'); grid.className='grid';
+  items.sort((a,b)=>b.id - a.id);
+  items.forEach(n=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `<div style="font-weight:800">${escapeHtml(n.title||'Untitled')}</div><div style="color:var(--muted);font-size:13px">${escapeHtml(n.body||'')}</div>`;
+    const ctrl = document.createElement('div'); ctrl.style.display='flex'; ctrl.style.gap='8px';
+    const edit = document.createElement('button'); edit.className='btn'; edit.innerText='Edit'; edit.onclick = ()=> openEditNote(n);
+    const del = document.createElement('button'); del.className='btn'; del.innerText='Delete'; del.onclick = async ()=>{ if(confirm('Delete note?')){ await idbDelete('notes', n.id); renderCurrentTab(); } };
+    ctrl.appendChild(edit); ctrl.appendChild(del);
+    card.appendChild(ctrl);
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+  contentArea.appendChild(wrap);
+}
+
+function openEditNote(n){
+  const modal = promptNoteForm(n);
+  modal.onSave = async (data)=>{
+    data.id = n.id;
+    await idbPut('notes', data);
+    renderCurrentTab();
+  };
+}
+
+/* ========== add dialog factory ========== */
+function openAddDialog(tab){
+  if(tab==='photos' || tab==='videos'){
+    const input = document.createElement('input'); input.type='file';
+    input.accept = tab==='photos' ? 'image/*' : 'video/*';
+    input.onchange = async (e)=>{
+      const f = e.target.files[0];
+      if(!f) return;
+      const blob = await f.slice(0, f.size, f.type);
+      const rec = { name: f.name, note:'', blob };
+      await idbAdd(tab==='photos' ? 'photos' : 'videos', rec);
+      renderCurrentTab();
+    };
+    input.click();
+    return;
+  }
+  if(tab==='contacts'){
+    const modal = promptContactForm();
+    modal.onSave = async (data)=>{
+      await idbAdd('contacts', data);
+      renderCurrentTab();
+    };
+    return;
+  }
+  if(tab==='notes'){
+    const modal = promptNoteForm();
+    modal.onSave = async (data)=>{
+      await idbAdd('notes', data);
+      renderCurrentTab();
+    };
+    return;
+  }
+}
+
+/* ========== small modal-like prompts using simple prompts (keeps single file minimal) ========== */
+
+function promptContactForm(initial = {name:'', phone:'', note:''}){
+  const container = document.createElement('div');
+  const name = promptInput('Contact name', initial.name);
+  const phone = promptInput('Phone number', initial.phone);
+  const note = promptTextarea('Note (optional)', initial.note);
+  container.appendChild(name.node); container.appendChild(phone.node); container.appendChild(note.node);
+  document.body.appendChild(container);
+  return showModal(container, async ()=>{
+    const data = { name: name.input.value.trim() || 'Unnamed', phone: phone.input.value.trim() || '', note: note.input.value.trim() || '' };
+    closeModal(container);
+    return data;
+  });
+}
+
+function promptNoteForm(initial = {title:'', body:''}){
+  const container = document.createElement('div');
+  const title = promptInput('Title', initial.title);
+  const body = promptTextarea('Body', initial.body);
+  container.appendChild(title.node); container.appendChild(body.node);
+  document.body.appendChild(container);
+  return showModal(container, async ()=>{
+    const data = { title: title.input.value.trim() || 'Untitled', body: body.input.value.trim() || '' };
+    closeModal(container);
+    return data;
+  });
+}
+
+/* ========== modal helpers ========== */
+function promptInput(label, value=''){
+  const box = document.createElement('div');
+  const lab = document.createElement('div'); lab.style.color='var(--muted)'; lab.style.marginBottom='6px'; lab.innerText=label;
+  const input = document.createElement('input'); input.className='input'; input.value=value;
+  box.appendChild(lab); box.appendChild(input);
+  return { node:box, input };
+}
+function promptTextarea(label, value=''){
+  const box = document.createElement('div');
+  const lab = document.createElement('div'); lab.style.color='var(--muted)'; lab.style.marginBottom='6px'; lab.innerText=label;
+  const ta = document.createElement('textarea'); ta.className='input'; ta.value=value;
+  box.appendChild(lab); box.appendChild(ta);
+  return { node:box, input:ta };
+}
+
+function showModal(contentNode, onSaveCb){
+  // overlay
+  const overlay = document.createElement('div'); overlay.style.position='fixed'; overlay.style.left=0; overlay.style.top=0; overlay.style.right=0; overlay.style.bottom=0; overlay.style.background='rgba(0,0,0,0.6)'; overlay.style.display='flex'; overlay.style.alignItems='center'; overlay.style.justifyContent='center'; overlay.style.zIndex=9999;
+  const card = document.createElement('div'); card.style.background='linear-gradient(180deg,#0b0b0b,#101010)'; card.style.padding='18px'; card.style.borderRadius='12px'; card.style.width='min(720px,92%)'; card.style.maxHeight='92vh'; card.style.overflow='auto';
+  const controls = document.createElement('div'); controls.style.display='flex'; controls.style.gap='10px'; controls.style.justifyContent='flex-end'; controls.style.marginTop='12px';
+  const save = document.createElement('button'); save.className='btn'; save.innerText='Save';
+  const cancel = document.createElement('button'); cancel.className='btn'; cancel.innerText='Cancel';
+  controls.appendChild(cancel); controls.appendChild(save);
+  card.appendChild(contentNode); card.appendChild(controls);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+
+  save.onclick = async ()=>{
+    const data = await onSaveCb();
+    if(typeof overlay.onSave === 'function') overlay.onSave(data);
+  };
+  cancel.onclick = ()=>{ closeModal(overlay); };
+
+  return {
+    onSave: (fn)=> overlay.onSave = fn,
+    close: ()=> closeModal(overlay)
+  };
+}
+function closeModal(overlay){
+  if(overlay && overlay.remove) overlay.remove();
+}
+
+/* ========== utility helpers ========== */
+function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=>fn(...a), ms); }; }
+
+/* ========== basic bindings for pass reset ========== */
+function resetBindings(){
+  // Reset passkey completely
+  document.getElementById('resetAll').onclick = ()=> {
+    if(!confirm('Reset stored passkey? This will not delete your media/notes/contacts.')) return;
+    localStorage.removeItem(PASSKEY_STORAGE);
+    alert('Passkey removed. You must create new passkey next time.');
+    checkPassExisting();
+  };
+}
+// ========== Developer Button ==========
+const devBtn = document.getElementById('devBtn');
+devBtn.onclick = () => {
+  alert("Developer: Rio (HARS ANIMATIONS / RIO Inc.)\nVersion: Local Secure Build\nEnvironment: IndexedDB + Pure Dark Mode");
+};
+/* ========== small sanity notes for storage of blobs: browsers allow blob storage in IndexedDB.
+   We don't implement encryption — local storage only. ========== */
+
+</script>
+</body>
+</html>
